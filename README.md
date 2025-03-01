@@ -1,6 +1,6 @@
 # cargo-short
 
-Shorter output for cargo, to be used with the `check` command.
+Shorter output for cargo, to be used with the `check` or `build` command.
 
 ## Usage
 
@@ -8,7 +8,7 @@ Shorter output for cargo, to be used with the `check` command.
 
 (making an alias is recommended)
 
-Using it with the `build` and `run` commands *is* possible, but piping is going to consume the output and printing / reading is going to fail, so I don't recommend it.
+Using it with the `run` command is possible too, but piping is going to consume the output and printing / reading is going to fail, so I don't recommend it.
 
 ## Screenshot
 
