@@ -57,7 +57,10 @@ if 1:
     lines = []
     while True:
         try:
-            lines.append(input())
+            lines.append(json.loads(input()))
+            if lines[-1]["reason"] == "build-finished":
+                break
+
         except EOFError:
             break
 
@@ -68,9 +71,7 @@ else:
 
 output = "\n"
 
-for line in lines:
-    msg = json.loads(line)
-
+for msg in lines:
     # Ignore everything except compiler-message
     # TODO: Add other stuff because it is probably useful
     if msg["reason"] == "compiler-message":

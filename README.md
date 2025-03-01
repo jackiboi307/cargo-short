@@ -1,12 +1,14 @@
 # cargo-short
 
-Shorter output for cargo, to be used with the `run`, `build` and `check` commands.
+Shorter output for cargo, to be used with the `check` command.
 
 ## Usage
 
 `cargo check --message-format json-diagnostic-short | python short.py`
 
 (making an alias is recommended)
+
+Using it with the `build` and `run` commands *is* possible, but piping is going to consume the output and printing / reading is going to fail, so I don't recommend it.
 
 ## Screenshot
 
