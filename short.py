@@ -66,7 +66,7 @@ else:
     with open("output.json") as file:
         lines = file.read().splitlines()
 
-output = ""
+output = "\n"
 
 for line in lines:
     msg = json.loads(line)
