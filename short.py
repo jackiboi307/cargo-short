@@ -45,9 +45,11 @@ def construct(
             f"{lines[0]} -> {lines[1]}"
 
     col = RED if level == "error" else YELLOW if level == "warning" else ""
+    
+    label = f": {label}" if label is not None else ""
 
     return f"{GREEN}{file_name}{RESET}:{BLUE+BOLD}{lines}{RESET}: " + \
-           f"{col}{message}{RESET}: " + \
+           f"{col}{message}{RESET}" + \
            f"{label}\n\t{text}\n\n"
 
 # Read the piped content:
