@@ -10,7 +10,7 @@ Shorter output for cargo, to be used with the `run`, `build` and `check` command
 
 ## Screenshot
 
-<img src="https://raw.githubusercontent.com/jackiboi307/cargo-short/refs/heads/master/screenshot.png">
+<img src="https://raw.githubusercontent.com/jackiboi307/cargo-short/refs/heads/main/screenshot.png">
 
 ## Features and lacking features
 
