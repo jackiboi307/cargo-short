@@ -4,7 +4,7 @@ Shorter output for cargo, to be used with the `check` or `build` command.
 
 ## Usage
 
-`cargo check --message-format json-diagnostic-short | python short.py`
+`cargo check --message-format json | python short.py`
 
 (making an alias is recommended)
 
