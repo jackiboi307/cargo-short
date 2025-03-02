@@ -27,6 +27,8 @@ def construct(
     # Insert help:
     for child in children:
         if child["level"] == "help":
+            if len(child["spans"]) == 0:
+                continue
             replacement = child["spans"][0]["suggested_replacement"]
             if replacement == "":
                 continue
