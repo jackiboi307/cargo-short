@@ -1,4 +1,5 @@
 import json
+import pprint
 
 RED     = '\033[91m'
 YELLOW  = '\033[93m'
@@ -9,6 +10,9 @@ RESET   = '\033[0m'
 
 UNDERCURL = "\033[58:5:1m\033[4:3m"
 
+def insert(text, new, index):
+    return text[:index] + new + text[index:]
+
 def construct(
         _, /,
             level,
@@ -17,29 +21,34 @@ def construct(
             label,
             text,
             highlight,
-            lines
+            lines,
+            children
         ):
 
-    # The weird stuff below is for formatting the code snippet
-    
-    # Remove whitespace to the left, and adjust highlight accordingly:
-    length = len(text)
-    text = text.lstrip()
-    difference = length - len(text) + 1
-    # I don't know why the above +1 is necessary,
-    # but this seems to be working
+    # Insert help:
+    for child in children:
+        if child["level"] == "help":
+            text = insert(
+                    text,
+                    GREEN + BOLD + child["spans"][0]["suggested_replacement"] + RESET,
+                    child["spans"][0]["column_start"]-1)
+            break
+
     highlight = list(highlight)
-    highlight[0] -= difference
-    highlight[1] -= difference
+    highlight[0] -= 1
+    highlight[1] -= 1
 
     # Add undercurl:
     length = len(text)
-    text = text[:highlight[0]] + UNDERCURL + text[highlight[0]:]
+    # text = text[:highlight[0]] + UNDERCURL + text[highlight[0]:]
+    text = insert(text, UNDERCURL, highlight[0])
     difference = len(text) - length
     highlight[1] += difference
-    text = text[:highlight[1]] + RESET + text[highlight[1]:]
+    # text = text[:highlight[1]] + RESET + text[highlight[1]:]
+    text = insert(text, RESET, highlight[1])
 
-    text = text.rstrip()
+    # Remove whitespace to the left:
+    text = text.strip()
 
     lines = str(lines[0]) if lines[1] == lines[0] else \
             f"{lines[0]} -> {lines[1]}"
@@ -66,16 +75,20 @@ if 1:
 
 # Debugging purposes:
 else:
+    lines = []
     with open("output.json") as file:
-        lines = file.read().splitlines()
+        for line in file.read().splitlines():
+            lines.append(json.loads(line))
 
 output = "\n"
 
 for msg in lines:
     # Ignore everything except compiler-message
     # TODO: Add other stuff because it is probably useful
-    if msg["reason"] == "compiler-message":
 
+    # pprint.pp(msg)
+
+    if msg["reason"] == "compiler-message":
         msg = msg["message"]
 
         output += construct(None, # I added this None because of Python limitations
@@ -97,7 +110,8 @@ for msg in lines:
             lines=(
                 msg["spans"][0]["line_start"],
                 msg["spans"][0]["line_end"]
-            )
+            ),
+            children = msg["children"]
         )
 
 output = output.rstrip() # Remove last newline
