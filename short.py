@@ -1,5 +1,4 @@
 import json
-import pprint
 
 RED     = '\033[91m'
 YELLOW  = '\033[93m'
@@ -28,9 +27,12 @@ def construct(
     # Insert help:
     for child in children:
         if child["level"] == "help":
+            replacement = child["spans"][0]["suggested_replacement"]
+            if replacement == "":
+                continue
             text = insert(
                     text,
-                    GREEN + BOLD + child["spans"][0]["suggested_replacement"] + RESET,
+                    GREEN + BOLD + replacement + RESET,
                     child["spans"][0]["column_start"]-1)
             break
 
@@ -85,8 +87,6 @@ output = "\n"
 for msg in lines:
     # Ignore everything except compiler-message
     # TODO: Add other stuff because it is probably useful
-
-    # pprint.pp(msg)
 
     if msg["reason"] == "compiler-message":
         msg = msg["message"]
