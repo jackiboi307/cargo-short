@@ -1,4 +1,8 @@
+DEBUG = False
+
 import json
+if DEBUG:
+    import pprint
 
 RED     = '\033[91m'
 YELLOW  = '\033[93m'
@@ -16,39 +20,77 @@ def construct(
         _, /,
             level,
             message,
-            file_name,
-            label,
-            text,
-            highlight,
-            lines,
-            children
+            children,
+            spans
         ):
+
+    if len(spans) > 0:
+        file_name=spans[0]["file_name"]
+        label=spans[0]["label"]
+        text=spans[0]["text"][0]["text"]
+
+        highlight=[
+            spans[0]["text"][0]["highlight_start"],
+            spans[0]["text"][0]["highlight_end"]
+        ]
+
+        lines=(
+            spans[0]["line_start"],
+            spans[0]["line_end"]
+        )
+
+    else:
+        return None
+
+    start = None
 
     # Insert help:
     for child in children:
         if child["level"] == "help":
             if len(child["spans"]) == 0:
                 continue
+
             replacement = child["spans"][0]["suggested_replacement"]
             if replacement == "":
                 continue
-            text = insert(
-                    text,
-                    GREEN + BOLD + replacement + RESET,
-                    child["spans"][0]["column_start"]-1)
+
+            replacement = GREEN + BOLD + replacement + RESET
+
+            start = child["spans"][0]["column_start"]-1
+
+            # Handle issue with multiple lines
+            if child["spans"][0]["line_start"] != child["spans"][0]["line_end"]:
+                end = len(text)
+
+            else:
+                end = child["spans"][0]["column_end"]-1
+
+            # text = insert(
+            #     text,
+            #     GREEN + BOLD + replacement + RESET,
+            #     child["spans"][0]["column_start"]-1
+            # )
+
+            text = text[:start] + replacement + text[end:]
+
             break
 
-    highlight = list(highlight)
     highlight[0] -= 1
     highlight[1] -= 1
 
+    # Adjust highlight according to replacement insertion:
+    if start is not None:
+        if start <= highlight[0]:
+            highlight[0] += len(replacement)
+            highlight[1] += len(replacement)
+        elif start <= highlight[1]:
+            highlight[1] += len(replacement)
+
     # Add undercurl:
     length = len(text)
-    # text = text[:highlight[0]] + UNDERCURL + text[highlight[0]:]
     text = insert(text, UNDERCURL, highlight[0])
     difference = len(text) - length
     highlight[1] += difference
-    # text = text[:highlight[1]] + RESET + text[highlight[1]:]
     text = insert(text, RESET, highlight[1])
 
     # Remove whitespace to the left:
@@ -90,31 +132,26 @@ for msg in lines:
     # Ignore everything except compiler-message
     # TODO: Add other stuff because it is probably useful
 
+    if DEBUG:
+        pprint.pp(msg)
+
     if msg["reason"] == "compiler-message":
         msg = msg["message"]
 
-        output += construct(None, # I added this None because of Python limitations
+        res = construct(None,  # I added this None because of Python limitations
 
-            level=msg["level"],
-            message=msg["message"],
+            level    = msg["level"],
+            message  = msg["message"],
+            children = msg["children"],
+            spans    = msg["spans"]
 
-            # The stuff below does weird indexing to msg["spans"],
-            # it assumes the length is 1 because I don't know what to do if it isn't
-            # The same applies for msg["spans"][...]["text"]
-
-            file_name=msg["spans"][0]["file_name"],
-            label=msg["spans"][0]["label"],
-            text=msg["spans"][0]["text"][0]["text"],
-            highlight=(
-                msg["spans"][0]["text"][0]["highlight_start"],
-                msg["spans"][0]["text"][0]["highlight_end"]
-            ),
-            lines=(
-                msg["spans"][0]["line_start"],
-                msg["spans"][0]["line_end"]
-            ),
-            children = msg["children"]
         )
+
+        if res is not None:
+            output += res
+
+        elif DEBUG:
+            pprint.pp(msg)
 
 output = output.rstrip() # Remove last newline
 
