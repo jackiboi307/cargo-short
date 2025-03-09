@@ -25,76 +25,84 @@ def construct(
         ):
 
     if len(spans) > 0:
-        file_name=spans[0]["file_name"]
-        label=spans[0]["label"]
-        text=spans[0]["text"][0]["text"]
+        file_name = spans[0]["file_name"]
+        label = spans[0]["label"]
 
-        highlight=[
-            spans[0]["text"][0]["highlight_start"],
-            spans[0]["text"][0]["highlight_end"]
-        ]
-
-        lines=(
+        lines = (
             spans[0]["line_start"],
             spans[0]["line_end"]
         )
 
+        if len(spans[0]["text"]) > 0:
+            text = spans[0]["text"][0]["text"]
+
+            highlight = [
+                spans[0]["text"][0]["highlight_start"],
+                spans[0]["text"][0]["highlight_end"]
+            ]
+
+        else:
+            text = None
+            highlight = None
+
     else:
         return None
 
-    start = None
+    if text is not None:
+        start = None
 
-    # Insert help:
-    for child in children:
-        if child["level"] == "help":
-            if len(child["spans"]) == 0:
-                continue
+        # Insert help:
+        for child in children:
+            if child["level"] == "help":
+                if len(child["spans"]) == 0:
+                    continue
 
-            replacement = child["spans"][0]["suggested_replacement"]
-            if replacement == "":
-                continue
+                replacement = child["spans"][0]["suggested_replacement"]
+                if replacement == "" or replacement is None:
+                    continue
 
-            replacement = GREEN + BOLD + replacement + RESET
+                replacement = GREEN + BOLD + replacement + RESET
 
-            start = child["spans"][0]["column_start"]-1
+                start = child["spans"][0]["column_start"]-1
 
-            # Handle issue with multiple lines
-            if child["spans"][0]["line_start"] != child["spans"][0]["line_end"]:
-                end = len(text)
+                # Handle issue with multiple lines
+                if child["spans"][0]["line_start"] != child["spans"][0]["line_end"]:
+                    end = len(text)
 
-            else:
-                end = child["spans"][0]["column_end"]-1
+                else:
+                    end = child["spans"][0]["column_end"]-1
 
-            # text = insert(
-            #     text,
-            #     GREEN + BOLD + replacement + RESET,
-            #     child["spans"][0]["column_start"]-1
-            # )
+                # text = insert(
+                #     text,
+                #     GREEN + BOLD + replacement + RESET,
+                #     child["spans"][0]["column_start"]-1
+                # )
 
-            text = text[:start] + replacement + text[end:]
+                text = text[:start] + replacement + text[end:]
 
-            break
+                break
 
-    highlight[0] -= 1
-    highlight[1] -= 1
+        if highlight is not None:
+            highlight[0] -= 1
+            highlight[1] -= 1
 
-    # Adjust highlight according to replacement insertion:
-    if start is not None:
-        if start <= highlight[0]:
-            highlight[0] += len(replacement)
-            highlight[1] += len(replacement)
-        elif start <= highlight[1]:
-            highlight[1] += len(replacement)
+            # Adjust highlight according to replacement insertion:
+            if start is not None:
+                if start <= highlight[0]:
+                    highlight[0] += len(replacement)
+                    highlight[1] += len(replacement)
+                elif start <= highlight[1]:
+                    highlight[1] += len(replacement)
 
-    # Add undercurl:
-    length = len(text)
-    text = insert(text, UNDERCURL, highlight[0])
-    difference = len(text) - length
-    highlight[1] += difference
-    text = insert(text, RESET, highlight[1])
+            # Add undercurl:
+            length = len(text)
+            text = insert(text, UNDERCURL, highlight[0])
+            difference = len(text) - length
+            highlight[1] += difference
+            text = insert(text, RESET, highlight[1])
 
-    # Remove whitespace to the left:
-    text = text.strip()
+        # Remove whitespace to the left:
+        text = text.strip()
 
     lines = str(lines[0]) if lines[1] == lines[0] else \
             f"{lines[0]} -> {lines[1]}"
@@ -105,7 +113,7 @@ def construct(
 
     return f"{GREEN}{file_name}{RESET}: {BLUE+BOLD}{lines}{RESET}: " + \
            f"{col}{message}{RESET}" + \
-           f"{label}\n\t{text}\n\n"
+           (f"{label}\n\t{text}\n\n" if text is not None else "\n\n")
 
 # Read the piped content:
 if 1:
