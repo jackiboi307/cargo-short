@@ -49,8 +49,11 @@ def construct(
         return None
 
     if text is not None:
-        start = None
+        text = text.strip()
 
+        # removed because it does not work very well!
+        """
+        start = None
         # Insert help:
         for child in children:
             if child["level"] == "help":
@@ -103,6 +106,7 @@ def construct(
 
         # Remove whitespace to the left:
         text = text.strip()
+        """
 
     lines = str(lines[0]) if lines[1] == lines[0] else \
             f"{lines[0]} -> {lines[1]}"
@@ -113,7 +117,7 @@ def construct(
 
     return f"{GREEN}{file_name}{RESET}: {BLUE+BOLD}{lines}{RESET}: " + \
            f"{col}{message}{RESET}" + \
-           (f"{label}\n\t{text}\n\n" if text is not None else "\n\n")
+           (f"{label}\n    {text}\n\n" if text is not None else "\n\n")
 
 # Read the piped content:
 if 1:
