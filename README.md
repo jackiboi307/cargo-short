@@ -18,6 +18,6 @@ Using it with the `run` command is possible too, but piping is going to consume 
 
 Currently, you only get warnings and errors - sooner or later I'll add the other stuff.
 
-The output includes file names, line numbers, the message and label, and a code snippet. The code snippet includes highlighting using a red undercurl, and if there is any compiler suggestion it is included in bold green.
+The output includes file names, line numbers, the message and label, and a code snippet. ~~The code snippet includes highlighting using a red undercurl, and if there is any compiler suggestion it is included in bold green.~~ Update: suggestions and the red undercurl were removed as they sometimes did not work well.
 
-Because of very limited testing, errors are likely, and there is no error handling. I'll make sure to add that, but please report any errors!
+Because of limited testing, errors are likely, and there is no error handling. I'll make sure to add that, but please report any errors!
